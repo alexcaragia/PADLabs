@@ -1,6 +1,6 @@
 package util
 
-fun String.readLineWithMessageHeader(): String? {
-    println(this)
+fun readLineWithHeader(header: String): String? {
+    println(header)
     return readLine()?.toLowerCase()
 }
