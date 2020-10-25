@@ -1,41 +1,45 @@
 package publisher
 
-import constants.ApplicationConstants
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.io.DataOutputStream
-import java.net.ServerSocket
 import java.net.Socket
 
 class PublisherSocket(private var address: String, private var port: Int) {
-    private var serverSocket: ServerSocket = ServerSocket(port, ApplicationConstants.MAX_CONNECTIONS_LENGTH)
     private lateinit var clientSocket: Socket
 
-    fun connect(): Single<Boolean> {
-        return try {
-            clientSocket = Socket(address, port)
-            Single.create {
-                it.onSuccess(if (clientSocket.isConnected) true.apply {
-                    println("Sender connected")
-                } else false.apply {
-                    println("Sender not connected")
-                })
-            }
-        } catch (e: Exception) {
-            println("Error occurred when connecting to the socket: ${e.message}")
-            Single.create {
+    fun connect(): Observable<Boolean> {
+        return Observable.create {
+            try {
+                clientSocket = Socket(address, port)
+                println("""
+                    Publisher socket connected: ${clientSocket.isConnected}
+                    Running on
+                    Address : ${clientSocket.inetAddress}
+                    Port: ${clientSocket.port}
+                """.trimIndent())
+                it.onNext(clientSocket.isConnected)
+                it.onComplete()
+            } catch (e: Exception) {
                 it.onError(e)
+                println("Error occurred when connecting Publisher: ${e.message}")
             }
         }
     }
 
-    fun sendData(byteArray: ByteArray) {
-        try {
-            clientSocket = serverSocket.accept()
-            val dataOutputStream = DataOutputStream(clientSocket.getOutputStream())
-            dataOutputStream.write(byteArray)
-            dataOutputStream.flush()
-        } catch (e: Exception) {
-            println("Data cannot be sent: ${e.message}")
+    fun sendData(byteArray: ByteArray): Single<Boolean> {
+        return Single.create {
+            println("Publisher sending data : ${String(byteArray)}")
+            try {
+                val dataOutputStream = DataOutputStream(clientSocket.getOutputStream())
+                dataOutputStream.write(byteArray.size)
+                dataOutputStream.write(byteArray)
+                it.onSuccess(dataOutputStream.size() > 0)
+                dataOutputStream.close()
+            } catch (e: Exception) {
+                println("Data cannot be sent: ${e.message}")
+                it.onError(e)
+            }
         }
     }
 }

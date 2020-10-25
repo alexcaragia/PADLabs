@@ -7,5 +7,5 @@ class Connection(
     var byteArrayData: ByteArray = ByteArray(ApplicationConstants.BUFFER_SIZE),
     var socket: Socket? = null,
     var address: String = "",
-    var title: String = ApplicationConstants.EMPTY_TITLE_PLACEHOLDER
+    var title: String = ""
 )

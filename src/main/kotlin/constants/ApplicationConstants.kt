@@ -9,6 +9,8 @@ object ApplicationConstants {
     const val EMPTY_TITLE_PLACEHOLDER = "No title"
     const val EMPTY_MESSAGE_PLACEHOLDER = "No message"
 
+    const val SUBSCRIBE = "subscribe#"
+
     const val ENTER_TITLE = "Enter title:\n"
     const val ENTER_MESSAGE = "Enter message:\n"
 }
